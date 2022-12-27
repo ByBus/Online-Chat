@@ -1,55 +1,51 @@
 package chat.server;
 
-import chat.messaging.Receiver;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 public class Session extends Thread {
-    private final int clientId;
+    private static final String NAME_ALREADY_TAKEN = "Server: this name is already taken! Choose another one.";
+    private static final String WRITE_NAME = "Server: write your name";
+    private final MessageDispatcher messageDispatcher;
     private final Socket socket;
+    private User user;
 
-    public Session(int clientId, Socket socket) {
-        this.clientId = clientId;
+    public Session(MessageDispatcher messageDispatcher, Socket socket) {
+        this.messageDispatcher = messageDispatcher;
         this.socket = socket;
     }
 
     @Override
     public void run() {
-        log(clientWithText("connected!"));
-
         try (DataInputStream input = new DataInputStream(socket.getInputStream());
              DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
 
-            var receiver = new Receiver(input);
+            var receiver = new ServerReceiver(input);
+            var responder = new ServerResponder(output);
+            responder.send(WRITE_NAME);
+
             receiver.setCallBack(message -> {
                 if (message.startsWith("/exit")) {
-                    log(clientWithText("disconnected!"));
+                    messageDispatcher.removeUser(user);
                     receiver.interrupt();
                     socket.close();
-                } else {
-                    var countIs = "Count is " + countWords(message);
-                    var countMessage = "Sent to client %d: %s".formatted(clientId, countIs);
-                    output.writeUTF(countIs);
-                    log(clientWithText("sent: " + message + "\n" + countMessage));
+                    return;
                 }
+                if (user == null) {
+                    user = new User(message, responder::send);
+                    if (!messageDispatcher.addUser(user)) {
+                        responder.send(NAME_ALREADY_TAKEN);
+                        user = null;
+                    }
+                    return;
+                }
+                messageDispatcher.addMessage(new Message(user, message));
             });
             receiver.start();
             receiver.join();
-        } catch (InterruptedException | IOException ignored) {}
-    }
-
-    private String clientWithText(String text) {
-        return "Client %d %s".formatted(clientId, text).trim();
-    }
-
-    private void log(String message) {
-        System.out.println(message);
-    }
-
-    private int countWords(String message) {
-        return message.trim().split("\\s+").length;
+        } catch (InterruptedException | IOException ignored) {
+        }
     }
 }

@@ -16,128 +16,140 @@ public class Tests extends StageTest<String> {
         client1.setReturnOutputAfterExecution(false);
         client2.setReturnOutputAfterExecution(false);
         client3.setReturnOutputAfterExecution(false);
-        final String countIs = "Count is ";
         final int executePause = 50;
 
         server.startInBackground();
-
-        //////Client 1
-
+        sleep(executePause);
         client1.start();
         sleep(executePause);
-
-        final String client1Start = client1.getOutput().trim();
-        if (!"Client started!".equals(client1Start))
-            return CheckResult.wrong("Can't get the \"Client started!\" message");
-
-        client1.execute("1 2 3");
-        sleep(executePause);
-
-        final String client1Answer1 = client1.getOutput().trim();
-        if (!(countIs + "3").equals(client1Answer1))
-            return CheckResult.wrong("Client showed a wrong answer!");
-
-        client1.execute("1 2");
-        sleep(executePause);
-
-        final String client1Answer2 = client1.getOutput().trim();
-        if (!(countIs + "2").equals(client1Answer2))
-            return CheckResult.wrong("Client showed a wrong answer!");
-
-        client1.execute("/exit");
-        sleep(executePause);
-
-        //////Client 2
-
         client2.start();
         sleep(executePause);
-        client2.getOutput();
-
-        client2.execute("By my hands");
-        sleep(executePause);
-
-        final String client2Answer1 = client2.getOutput().trim();
-        if (!(countIs + "3").equals(client2Answer1))
-            return CheckResult.wrong("Client showed a wrong answer!");
-
-        /////Client 3
-
         client3.start();
         sleep(executePause);
         client3.getOutput();
+        client2.getOutput();
 
-        client3.execute("Zzzz.");
+        final String client1Start = client1.getOutput().trim();
+        if (!"Client started!\nServer: write your name".equals(client1Start.trim())) {
+            return CheckResult.wrong("Can't get the \"Client started!\nServer: write your name\" messages");
+        }
+
+        client1.execute("First");
         sleep(executePause);
 
-        final String client3Answer1 = client3.getOutput().trim();
-        if (!(countIs + "1").equals(client3Answer1))
-            return CheckResult.wrong("Client showed a wrong answer!");
+        final String client1Answer1 = client1.getOutput().trim();
+        if (!client1Answer1.isEmpty()) {
+            return CheckResult.wrong("Client receive a message after successful login, but shouldn't");
+        }
 
-        client3.execute("want to sleep");
+        client1.execute("Hello all!");
         sleep(executePause);
 
-        final String client3Answer2 = client3.getOutput().trim();
-        if (!(countIs + "3").equals(client3Answer2))
-            return CheckResult.wrong("Client showed a wrong answer!");
+        final String client1Answer2 = client1.getOutput().trim();
+        if (client1Answer2.isEmpty() || !client1Answer2.equals("First: Hello all!")) {
+            return CheckResult.wrong("Client receive wrong message");
+        }
 
-        client3.execute("/exit");
 
-        //////Client 2 AGAIN
+        final String client2Answer1 = client2.getOutput().trim();
+        if (client2Answer1.trim().equals("First: Hello all!")) {
+            return CheckResult.wrong("Client printed a message from chat before login yet!");
+        }
 
-        client2.execute("Repeat");
+        if (!client2Answer1.isEmpty()) {
+            return CheckResult.wrong("Client printed a message before login but shouldn't");
+        }
+
+        client2.execute("Second");
         sleep(executePause);
 
         final String client2Answer2 = client2.getOutput().trim();
-        if (!(countIs + "1").equals(client2Answer2))
-            return CheckResult.wrong("Client showed a wrong answer!");
+        if (!client2Answer2.equals("First: Hello all!")) {
+            return CheckResult.wrong("Client should receive and print last 10 messages after login");
+        }
 
+        client3.execute("First");
+        sleep(executePause);
+
+        final String client3Answer1 = client3.getOutput().trim();
+        if (client3Answer1.isEmpty() ||
+                !client3Answer1.trim().equals("Server: this name is already taken! Choose another one.")) {
+            return CheckResult.wrong(
+                    "Can't get the \"Server: this name is already taken! Choose another one.\" " +
+                            "message after login with name that is already taken");
+        }
+
+        client3.execute("Second");
+        sleep(executePause);
+
+        final String client3Answer2 = client3.getOutput().trim();
+        if (client3Answer2.isEmpty() ||
+                !client3Answer2.trim().equals("Server: this name is already taken! Choose another one.")) {
+            return CheckResult.wrong(
+                    "Can't get the \"Server: this name is already taken! Choose another one.\" " +
+                            "message after login with name that is already taken");
+        }
+
+
+        client2.execute("Bye bye!");
+        sleep(executePause);
+
+        final String client1Answer3 = client1.getOutput().trim();
+        final String client2Answer3 = client2.getOutput().trim();
+
+        if (client1Answer3.isEmpty() || client2Answer3.isEmpty())
+            return CheckResult.wrong("Client didn't receive a message");
+
+        if (!client1Answer3.equals("Second: Bye bye!")
+                || !client2Answer3.equals("Second: Bye bye!")) {
+            return CheckResult.wrong("Client receive a wrong message");
+        }
+
+        client2.execute("First message");
+        sleep(executePause);
+        client2.execute("Second message");
+        sleep(executePause);
+        client2.execute("Third message");
+        sleep(executePause);
+        client2.execute("Fourth message");
+        sleep(executePause);
+        client2.execute("Fifth message");
+        sleep(executePause);
+        client2.execute("Sixth message");
+        sleep(executePause);
+        client2.execute("Seventh message");
+        sleep(executePause);
+        client2.execute("Eighth message");
+        sleep(executePause);
+        client2.execute("Ninth message");
+        sleep(executePause);
+        client2.execute("Tenth message");
+        sleep(executePause);
         client2.execute("/exit");
         sleep(executePause);
 
-        //////Server
+        if (!client2.isFinished()) {
+            return CheckResult.wrong("Client's program should shut down after /exit command");
+        }
 
-        String serverOutput = server.getOutput().trim();
-        String[] serverOutputArray = serverOutput.split("\n");
+        client3.execute("Third");
+        sleep(executePause);
 
-        try {
-            String client1id = serverOutputArray[1].split(" ")[1];
-            String client2id = serverOutputArray[7].split(" ")[1];
-            String client3id = serverOutputArray[10].split(" ")[1];
-
-            if (!serverOutput.equals(
-                    "Server started!\n" +
-
-                            "Client " + client1id + " connected!\n" +
-                            "Client " + client1id + " sent: 1 2 3\n" +
-                            "Sent to client " + client1id + ": " + countIs + "3\n" +
-                            "Client " + client1id + " sent: 1 2\n" +
-                            "Sent to client " + client1id + ": " + countIs + "2\n" +
-                            "Client " + client1id + " disconnected!\n" +
-
-                            "Client " + client2id + " connected!\n" +
-                            "Client " + client2id + " sent: By my hands\n" +
-                            "Sent to client " + client2id + ": " + countIs + "3\n" +
-
-                            "Client " + client3id + " connected!\n" +
-                            "Client " + client3id + " sent: Zzzz.\n" +
-                            "Sent to client " + client3id + ": " + countIs + "1\n" +
-
-                            "Client " + client3id + " sent: want to sleep\n" +
-                            "Sent to client " + client3id + ": " + countIs + "3\n" +
-                            "Client " + client3id + " disconnected!\n" +
-
-                            "Client " + client2id + " sent: Repeat\n" +
-                            "Sent to client " + client2id + ": " + countIs + "1\n" +
-                            "Client " + client2id + " disconnected!"
-            ))
-                return CheckResult.wrong(
-                        "Server showed wrong messages or messages in wrong order");
-        } catch (ArrayIndexOutOfBoundsException e) {
-            return CheckResult.wrong(
-                    "Server showed wrong messages or messages in wrong order");
+        final String client3Answer3 = client3.getOutput().trim();
+        if (!client3Answer3.equals(
+                "Second: First message\n" +
+                "Second: Second message\n" +
+                "Second: Third message\n" +
+                "Second: Fourth message\n" +
+                "Second: Fifth message\n" +
+                "Second: Sixth message\n" +
+                "Second: Seventh message\n" +
+                "Second: Eighth message\n" +
+                "Second: Ninth message\n" +
+                "Second: Tenth message")) {
+            return CheckResult.wrong("Client should receive and print 10 last messages after login");
         }
 
         return CheckResult.correct();
     }
-
 }

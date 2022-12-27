@@ -14,14 +14,16 @@ public class Responder extends Thread {
 
     @Override
     public void run() {
-        var scanner = new Scanner(System.in);
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!isInterrupted()) {
+            var scanner = new Scanner(System.in);
             String msg = scanner.nextLine();
             try {
                 output.writeUTF(msg);
             } catch (IOException ignored) {
             } finally {
-                if (msg.startsWith("/exit")) interrupt();
+                if (msg.startsWith("/exit")) {
+                    interrupt();
+                }
             }
         }
     }

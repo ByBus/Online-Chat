@@ -1,27 +1,28 @@
-package chat.messaging;
+package chat.server;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-public class Receiver extends Thread{
+public class ServerReceiver extends Thread {
     private final DataInputStream inputStream;
     private Callback callback;
 
-    public Receiver(DataInputStream inputStream) {
+    public ServerReceiver(DataInputStream inputStream) {
         this.inputStream = inputStream;
     }
 
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!isInterrupted()) {
             try {
                 String message = inputStream.readUTF();
-                if (callback != null) {
-                    callback.execute(message);
-                } else {
+                if (callback == null) {
                     System.out.println(message);
+                } else {
+                    callback.execute(message);
                 }
-            } catch (IOException ignored) { }
+            } catch (IOException ignored) {
+            }
         }
     }
 

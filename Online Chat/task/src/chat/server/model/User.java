@@ -1,16 +1,16 @@
-package chat.server;
+package chat.server.model;
 
-import java.util.List;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Objects;
-import java.util.function.Consumer;
 
-public class User implements Observer<Message> {
-    private String name;
-    private final Consumer<List<Message>> messagesUpdater;
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+    private final String name;
 
-    public User(String name, Consumer<List<Message>> messagesUpdater) {
+    public User(String name) {
         this.name = name;
-        this.messagesUpdater = messagesUpdater;
     }
 
     @Override
@@ -29,10 +29,5 @@ public class User implements Observer<Message> {
     @Override
     public int hashCode() {
         return Objects.hash(name);
-    }
-
-    @Override
-    public void update(List<Message> data) {
-        messagesUpdater.accept(data);
     }
 }

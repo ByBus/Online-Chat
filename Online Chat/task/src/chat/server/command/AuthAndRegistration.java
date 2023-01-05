@@ -1,6 +1,6 @@
 package chat.server.command;
 
-import chat.server.Session;
+import chat.server.Communication;
 import chat.server.authentication.Authenticator;
 import chat.server.exception.IncorrectCommandException;
 import chat.server.exception.NotInChatException;
@@ -10,10 +10,10 @@ import java.io.IOException;
 
 public class AuthAndRegistration implements Command {
     private final Authenticator authenticator;
-    private final Session session;
+    private final Communication session;
 
     public AuthAndRegistration(Authenticator authenticator,
-                               Session session) {
+                               Communication session) {
         this.authenticator = authenticator;
         this.session = session;
     }

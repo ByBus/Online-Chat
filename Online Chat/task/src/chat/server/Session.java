@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.function.Consumer;
 
-public class Session extends Thread {
+public class Session extends Thread implements Communication {
     private final Socket socket;
     private User user;
-    private boolean isRegistration = true;
+    private boolean isLoginState = true;
     private ServerResponder responder;
     private Command command = ServiceLocator.provideAuthAndRegisterState(this);
     public Session(Socket socket) {
@@ -35,9 +35,9 @@ public class Session extends Thread {
                 try {
                     var respond = command.execute(message);
                     if (!respond.isBlank()) responder.send(respond);
-                    if (isRegistration) { // if no exceptions above this line then user logged in
+                    if (isLoginState) { // if no exceptions above this line then user logged in
                         command = ServiceLocator.provideConversationState(user);
-                        isRegistration = false;
+                        isLoginState = false;
                     }
                 } catch (RespondException e) {
                     responder.send(e.getMessage());
@@ -51,12 +51,19 @@ public class Session extends Thread {
         } catch (InterruptedException | IOException ignored) {
         }
     }
-
+    @Override
     public void setUser(User user) {
         this.user = user;
     }
 
+    @Override
     public Consumer<String> respond() {
         return responder::send;
+    }
+
+    @Override
+    public void logOut() {
+        command = ServiceLocator.provideAuthAndRegisterState(this);
+        isLoginState = true;
     }
 }

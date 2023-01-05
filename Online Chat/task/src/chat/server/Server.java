@@ -11,7 +11,7 @@ public class Server {
     public static void main(String[] args) {
         System.out.println("Server started!");
         try (ServerSocket server = new ServerSocket(23456)) {
-            server.setSoTimeout(2000);
+            server.setSoTimeout(5000);
             while (true) {
                 var session = new Session(server.accept());
                 session.start();
@@ -20,7 +20,7 @@ public class Server {
             System.out.println(e.getMessage());
             e.printStackTrace();
         } finally {
-            ServiceLocator.provideMessageDispatcher().saveMessagesToDisk();
+            ServiceLocator.provideMessageDispatcher().saveDataToDisk();
         }
     }
 }

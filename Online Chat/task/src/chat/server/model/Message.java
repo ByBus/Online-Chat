@@ -2,6 +2,7 @@ package chat.server.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class Message implements Serializable {
     private final Map<User, Boolean> whoIsRead = new HashMap<>();
     private final User author;
     private final User addressee;
-    private String text;
+    private final String text;
 
     public Message(User from, User to, String text) {
         this.author = from;
@@ -46,5 +47,14 @@ public class Message implements Serializable {
     }
     public boolean isChatting(User user) {
         return author.equals(user) || addressee.equals(user);
+    }
+
+    public boolean isReadBy(User user){
+        if (!whoIsRead.containsKey(user)) throw new IllegalArgumentException();
+        return whoIsRead.get(user);
+    }
+
+    public boolean isChatting(User... user) {
+       return Arrays.stream(user).allMatch(whoIsRead::containsKey);
     }
 }

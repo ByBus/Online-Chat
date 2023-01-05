@@ -1,7 +1,7 @@
 package chat.server.exception;
 
-public class LoginAlreadyTaken extends RespondException{
-    public LoginAlreadyTaken() {
+public class LoginAlreadyTakenException extends RespondException{
+    public LoginAlreadyTakenException() {
         super("Server: this login is already taken! Choose another one.");
     }
 }

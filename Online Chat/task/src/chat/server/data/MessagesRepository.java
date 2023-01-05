@@ -4,9 +4,9 @@ import chat.server.model.Message;
 import chat.server.model.User;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MessagesRepository {
     private final Serializer<List<Message>> serializer;
@@ -25,14 +25,30 @@ public class MessagesRepository {
         messages.add(message);
     }
 
-    public List<Message> lastNMessages(User author, User addressee, int n) {
-        var filtered = messages.stream()
-                .filter(m -> m.isChatting(author) && m.isChatting(addressee))
-                .toList();
+    public List<Message> lastNMessages(User from, User to, int n) {
+        int maxElements = 25;
+        List<Message> chatMessages = chatMessages(from, to);
+        int offset = Math.max(chatMessages.size() - n, 0);
+        return chatMessages.stream().skip(offset).limit(maxElements).toList();
+    }
 
-        return (filtered.size() > n)
-                ? filtered.subList(filtered.size() - n, filtered.size())
-                : filtered.stream().toList();
+    private List<Message> chatMessages(User from, User to) {
+        return messages.stream()
+                .filter(m -> m.isChatting(from, to))
+                .toList();
+    }
+
+    public List<Message> lastMessages(User from, User to) {
+        var chatMessages = chatMessages(from, to).stream()
+                .collect(Collectors.groupingBy(m -> m.isReadBy(from)));
+        int readSize = chatMessages.get(true) == null ? 0 : chatMessages.get(true).size();
+        int unreadSize = chatMessages.get(false) == null ? 0 : chatMessages.get(false).size();
+        int readOffset = Math.max(readSize - 10, 0);
+        int unreadOffset = Math.max(unreadSize - 25, 0);
+        return Stream.concat(
+                chatMessages.getOrDefault(true, Collections.emptyList()).stream().skip(readOffset),
+                chatMessages.getOrDefault(false, Collections.emptyList()).stream().skip(unreadOffset)
+        ).limit(25).toList();
     }
 
     public List<Message> read() {
@@ -44,5 +60,33 @@ public class MessagesRepository {
            // e.printStackTrace();
         }
         return messages;
+    }
+
+    public String statsOfChat(User author, User addressee) {
+        var newLine = System.lineSeparator();
+        StringBuilder sb = new StringBuilder("Server:");
+
+        Map<User, Long> userToMessageCount = messages.stream()
+                .filter(m -> m.isChatting(author) && m.isChatting(addressee))
+                .collect(Collectors.groupingBy(Message::author, Collectors.counting()));
+
+        long fromAuthor = userToMessageCount.getOrDefault(author, 0L);
+        long fromAddressee = userToMessageCount.getOrDefault(addressee, 0L);
+        long total = fromAuthor + fromAddressee;
+        sb.append(newLine)
+                .append("Statistics with ").append(addressee).append(":").append(newLine)
+                .append("Total messages: ").append(total).append(newLine)
+                .append("Messages from ").append(author).append(": ").append(fromAuthor).append(newLine)
+                .append("Messages from ").append(addressee).append(": ").append(fromAddressee);
+        return sb.toString();
+    }
+
+    public List<User> findWhoSendNewMessages(User addressee){
+        return messages.stream()
+                .filter(m -> m.addressee().equals(addressee) && !m.isReadBy(addressee))
+                .map(Message::author)
+                .distinct()
+                .sorted(Comparator.comparing(User::toString))
+                .toList();
     }
 }

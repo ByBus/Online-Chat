@@ -1,20 +1,20 @@
 package chat.server.authentication;
 
+import chat.server.Communication;
 import chat.server.MessageDispatcher;
-import chat.server.Session;
+import chat.server.data.RegistrationRepository;
 import chat.server.exception.*;
 import chat.server.model.User;
-import chat.server.data.PasswordRepository;
 
 import java.io.IOException;
 
 public class Authenticator {
     private final Hasher<String> passwordHasher;
     private final Checker<String> passwordChecker;
-    private final PasswordRepository repository;
+    private final RegistrationRepository repository;
     private final MessageDispatcher messageDispatcher;
 
-    public Authenticator(PasswordRepository repository,
+    public Authenticator(RegistrationRepository repository,
                          MessageDispatcher messageDispatcher,
                          Hasher<String> passwordHasher,
                          Checker<String> passwordChecker) {
@@ -34,14 +34,15 @@ public class Authenticator {
     public boolean register(String name, String password) throws RespondException, IOException {
         if (!passwordChecker.check(password)) throw new ShortPasswordException();
         var hash = passwordHasher.hash(password);
-        if(repository.isRegistered(name)) throw new LoginAlreadyTaken();
+        if(repository.isRegistered(name)) throw new LoginAlreadyTakenException();
         repository.register(name, hash);
         return true;
     }
 
-    public void login(String username, Session session) {
+    public void login(String username, Communication session) throws RespondException {
+        if(repository.isBanned(username)) throw new BannedException();
         User user = new User(username);
         session.setUser(user);
-        messageDispatcher.addUser(user, session.respond());
+        messageDispatcher.addUser(user, session);
     }
 }

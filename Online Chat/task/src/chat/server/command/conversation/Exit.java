@@ -1,10 +1,10 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.exception.ExitException;
 import chat.server.model.User;
 
-public class Exit extends Command {
+public class Exit extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public Exit(MessageDispatcher messageDispatcher) {
@@ -13,7 +13,7 @@ public class Exit extends Command {
     }
 
     @Override
-    String execute(String[] params, User user) {
+    protected String execute(String[] params, User user) {
         messageDispatcher.removeUser(user);
         throw new ExitException();
     }

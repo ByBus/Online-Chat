@@ -2,8 +2,6 @@ package chat.server.data;
 
 import chat.server.model.Registration;
 
-import java.io.IOException;
-
 public class RegistrationRepository {
     private final DataSource<Registration> inMemoryStorage;
     private final DataSource<Registration> localStorage;
@@ -42,7 +40,7 @@ public class RegistrationRepository {
                 .orElse(null);
     }
 
-    public boolean isRegistered(String name) throws IOException {
+    public boolean isRegistered(String name){
         var registrations = inMemoryStorage.readAll();
         return registrations.stream().anyMatch(r -> r.getName().equals(name));
     }

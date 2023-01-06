@@ -1,9 +1,9 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.model.User;
 
-public class ShowChatStatistics extends Command{
+public class ShowChatStatistics extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public ShowChatStatistics(MessageDispatcher messageDispatcher) {
@@ -12,7 +12,7 @@ public class ShowChatStatistics extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) {
+    public String execute(String[] params, User user) {
         return messageDispatcher.statistics(user);
     }
 }

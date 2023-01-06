@@ -1,11 +1,11 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.authentication.Authorizator;
 import chat.server.exception.IncorrectCommandException;
 import chat.server.exception.RespondException;
 import chat.server.model.User;
 
-public class MakeUserAModerator extends Command{
+public class MakeUserAModerator extends ConversationCommand {
     private final Authorizator authorizator;
 
     public MakeUserAModerator(Authorizator authorizator) {
@@ -14,7 +14,7 @@ public class MakeUserAModerator extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) throws RespondException {
+    protected String execute(String[] params, User user) throws RespondException {
         if (params.length != 2) throw new IncorrectCommandException();
         var moderator = new User(params[1]);
         authorizator.makeModerator(user, moderator);

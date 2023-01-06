@@ -6,8 +6,6 @@ import chat.server.data.RegistrationRepository;
 import chat.server.exception.*;
 import chat.server.model.User;
 
-import java.io.IOException;
-
 public class Authenticator {
     private final Hasher<String> passwordHasher;
     private final Checker<String> passwordChecker;
@@ -24,14 +22,14 @@ public class Authenticator {
         this.messageDispatcher = messageDispatcher;
     }
 
-    public boolean checkLogin(String name, String password) throws RespondException, IOException {
+    public boolean checkLogin(String name, String password) throws RespondException {
         if (!repository.isRegistered(name)) throw new IncorrectLoginException();
         var hash = passwordHasher.hash(password);
         if (!repository.checkRegistration(name, hash)) throw new IncorrectPasswordException();
         return true;
     }
 
-    public boolean register(String name, String password) throws RespondException, IOException {
+    public boolean register(String name, String password) throws RespondException {
         if (!passwordChecker.check(password)) throw new ShortPasswordException();
         var hash = passwordHasher.hash(password);
         if(repository.isRegistered(name)) throw new LoginAlreadyTakenException();

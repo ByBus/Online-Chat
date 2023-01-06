@@ -1,9 +1,9 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.model.User;
 
-public class CreateChatWithUser extends Command{
+public class CreateChatWithUser extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public CreateChatWithUser(MessageDispatcher messageDispatcher) {
@@ -12,7 +12,7 @@ public class CreateChatWithUser extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) {
+    protected String execute(String[] params, User user) {
         var secondTalker = new User(params[1]);
         String response = "";
         if (!messageDispatcher.isOnline(secondTalker)) {

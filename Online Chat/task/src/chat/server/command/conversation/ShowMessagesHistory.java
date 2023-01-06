@@ -1,10 +1,10 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.authentication.NumberChecker;
 import chat.server.model.User;
 
-public class ShowMessagesHistory extends Command{
+public class ShowMessagesHistory extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public ShowMessagesHistory(MessageDispatcher messageDispatcher) {
@@ -13,7 +13,7 @@ public class ShowMessagesHistory extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) {
+    protected String execute(String[] params, User user) {
         var messagesCount = params[1];
         var response = "";
         if (new NumberChecker().check(messagesCount)) {

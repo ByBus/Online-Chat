@@ -1,11 +1,11 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.exception.RespondException;
 import chat.server.model.Message;
 import chat.server.model.User;
 
-public class SendMessage extends Command{
+public class SendMessage extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public SendMessage(MessageDispatcher messageDispatcher) {
@@ -14,7 +14,7 @@ public class SendMessage extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) throws RespondException {
+    public String execute(String[] params, User user) throws RespondException {
         User secondTalker = messageDispatcher.currentTalkerOf(user);
         if (secondTalker != null) {
             var message = new Message(user, secondTalker, String.join(" ", params));

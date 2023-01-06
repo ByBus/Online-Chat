@@ -2,14 +2,17 @@ package chat.server.servicelocator;
 
 import chat.server.*;
 import chat.server.authentication.*;
+import chat.server.command.conversation.*;
+import chat.server.command.registration.LoginUser;
+import chat.server.command.registration.RegisterNewUserAndLogin;
 import chat.server.state.AuthAndRegistration;
+import chat.server.state.Command;
 import chat.server.state.State;
 import chat.server.state.Conversation;
 import chat.server.data.*;
 import chat.server.model.Message;
 import chat.server.model.Registration;
 import chat.server.model.User;
-import chat.server.state.command.*;
 
 import java.util.List;
 
@@ -39,6 +42,7 @@ public class ServiceLocator {
     private static DataSource<Registration> provideLocalRegistrationDataSource() {
         return new LocalRegistrationDataSource(new Serializer<>("usersdb.txt"));
     }
+
     private static DataSource<Registration> provideInMemoryRegistrationDataSource() {
         return new InMemoryRegistrationDataSource();
     }
@@ -48,6 +52,7 @@ public class ServiceLocator {
         registration.makeAdmin();
         return registration;
     }
+
     public static RegistrationRepository provideRegistrationRepository() {
         if (passwordRepository == null) {
             passwordRepository = new RegistrationRepository(
@@ -76,22 +81,22 @@ public class ServiceLocator {
         );
     }
 
-    public static Authorizator provideAuthorizator(){
+    public static Authorizator provideAuthorizator() {
         return new Authorizator(provideMessageDispatcher(), provideRegistrationRepository());
     }
 
     public synchronized static State provideAuthAndRegisterState(Communication session) {
-        return new AuthAndRegistration(provideAuthenticator(), session);
+        return new AuthAndRegistration(provideRegistrationCommands(), session);
     }
 
     public synchronized static State provideConversationState(User user) {
         return new Conversation(provideChainOfCommands(), user);
     }
 
-    public static Command provideChainOfCommands() {
+    public static Command<User> provideChainOfCommands() {
         MessageDispatcher dispatcher = provideMessageDispatcher();
         Authorizator authorizator = provideAuthorizator();
-        Command start = new ShowOnlineUsers(dispatcher);
+        Command<User> start = new ShowOnlineUsers(dispatcher);
         start
                 .setNext(new CreateChatWithUser(dispatcher))
                 .setNext(new ShowUnreadMessages(dispatcher))
@@ -104,5 +109,12 @@ public class ServiceLocator {
                 .setNext(new SendMessage(dispatcher));
 
         return start;
+    }
+
+    public static Command<Communication> provideRegistrationCommands() {
+        Authenticator authenticator = provideAuthenticator();
+        Command<Communication> first = new RegisterNewUserAndLogin(authenticator);
+        first.setNext(new LoginUser(authenticator));
+        return first;
     }
 }

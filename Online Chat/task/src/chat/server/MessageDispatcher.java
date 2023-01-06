@@ -102,12 +102,8 @@ public class MessageDispatcher {
 
 
     public synchronized void makeChat(User currentUser, User secondUser) {
-        try {
-            if (registrationRepository.isRegistered(secondUser.toString())) {
-                chats.put(currentUser, secondUser);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (registrationRepository.isRegistered(secondUser.toString())) {
+            chats.put(currentUser, secondUser);
         }
     }
 

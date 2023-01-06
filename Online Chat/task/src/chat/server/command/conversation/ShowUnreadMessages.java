@@ -1,11 +1,11 @@
-package chat.server.state.command;
+package chat.server.command.conversation;
 
 import chat.server.MessageDispatcher;
 import chat.server.model.User;
 
 import java.util.stream.Collectors;
 
-public class ShowUnreadMessages extends Command{
+public class ShowUnreadMessages extends ConversationCommand {
     private final MessageDispatcher messageDispatcher;
 
     public ShowUnreadMessages(MessageDispatcher messageDispatcher) {
@@ -14,7 +14,7 @@ public class ShowUnreadMessages extends Command{
     }
 
     @Override
-    String execute(String[] params, User user) {
+    protected String execute(String[] params, User user) {
         var users = messageDispatcher.findUnreadUsers(user);
         var unreadUsers = "unread from: " + users.stream()
                 .map(User::toString)

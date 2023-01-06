@@ -3,6 +3,7 @@ package chat.server.servicelocator;
 import chat.server.*;
 import chat.server.authentication.*;
 import chat.server.command.conversation.*;
+import chat.server.command.registration.ExitFromRegistration;
 import chat.server.command.registration.LoginUser;
 import chat.server.command.registration.RegisterNewUserAndLogin;
 import chat.server.state.AuthAndRegistration;
@@ -114,7 +115,9 @@ public class ServiceLocator {
     public static Command<Communication> provideRegistrationCommands() {
         Authenticator authenticator = provideAuthenticator();
         Command<Communication> first = new RegisterNewUserAndLogin(authenticator);
-        first.setNext(new LoginUser(authenticator));
+        first
+                .setNext(new LoginUser(authenticator))
+                .setNext(new ExitFromRegistration());
         return first;
     }
 }

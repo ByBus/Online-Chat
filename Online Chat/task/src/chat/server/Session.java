@@ -1,6 +1,5 @@
 package chat.server;
 
-import chat.server.command.Command;
 import chat.server.exception.ExitException;
 import chat.server.exception.RespondException;
 import chat.server.model.User;
@@ -17,7 +16,7 @@ public class Session extends Thread implements Communication {
     private User user;
     private boolean isLoginState = true;
     private ServerResponder responder;
-    private Command command = ServiceLocator.provideAuthAndRegisterState(this);
+    private chat.server.state.State command = ServiceLocator.provideAuthAndRegisterState(this);
     public Session(Socket socket) {
         this.socket = socket;
     }

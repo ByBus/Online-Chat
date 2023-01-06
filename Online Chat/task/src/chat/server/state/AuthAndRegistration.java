@@ -1,4 +1,4 @@
-package chat.server.command;
+package chat.server.state;
 
 import chat.server.Communication;
 import chat.server.authentication.Authenticator;
@@ -8,7 +8,7 @@ import chat.server.exception.RespondException;
 
 import java.io.IOException;
 
-public class AuthAndRegistration implements Command {
+public class AuthAndRegistration implements State {
     private final Authenticator authenticator;
     private final Communication session;
 

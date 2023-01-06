@@ -2,13 +2,14 @@ package chat.server.servicelocator;
 
 import chat.server.*;
 import chat.server.authentication.*;
-import chat.server.command.AuthAndRegistration;
-import chat.server.command.Command;
-import chat.server.command.Conversation;
+import chat.server.state.AuthAndRegistration;
+import chat.server.state.State;
+import chat.server.state.Conversation;
 import chat.server.data.*;
 import chat.server.model.Message;
 import chat.server.model.Registration;
 import chat.server.model.User;
+import chat.server.state.command.*;
 
 import java.util.List;
 
@@ -79,11 +80,29 @@ public class ServiceLocator {
         return new Authorizator(provideMessageDispatcher(), provideRegistrationRepository());
     }
 
-    public synchronized static Command provideAuthAndRegisterState(Communication session) {
+    public synchronized static State provideAuthAndRegisterState(Communication session) {
         return new AuthAndRegistration(provideAuthenticator(), session);
     }
 
-    public synchronized static Command provideConversationState(User user) {
-        return new Conversation(provideMessageDispatcher(),provideAuthorizator(), user);
+    public synchronized static State provideConversationState(User user) {
+        return new Conversation(provideChainOfCommands(), user);
+    }
+
+    public static Command provideChainOfCommands() {
+        MessageDispatcher dispatcher = provideMessageDispatcher();
+        Authorizator authorizator = provideAuthorizator();
+        Command start = new ShowOnlineUsers(dispatcher);
+        start
+                .setNext(new CreateChatWithUser(dispatcher))
+                .setNext(new ShowUnreadMessages(dispatcher))
+                .setNext(new ShowChatStatistics(dispatcher))
+                .setNext(new ShowMessagesHistory(dispatcher))
+                .setNext(new Exit(dispatcher))
+                .setNext(new BanUser(authorizator))
+                .setNext(new MakeUserAModerator(authorizator))
+                .setNext(new MakeModeratorAUser(authorizator))
+                .setNext(new SendMessage(dispatcher));
+
+        return start;
     }
 }

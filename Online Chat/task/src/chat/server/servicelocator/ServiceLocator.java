@@ -1,11 +1,12 @@
 package chat.server.servicelocator;
 
-import chat.server.*;
 import chat.server.authentication.*;
 import chat.server.command.conversation.*;
 import chat.server.command.registration.ExitFromRegistration;
 import chat.server.command.registration.LoginUser;
 import chat.server.command.registration.RegisterNewUserAndLogin;
+import chat.server.communication.Communication;
+import chat.server.communication.MessageDispatcher;
 import chat.server.state.AuthAndRegistration;
 import chat.server.state.Command;
 import chat.server.state.State;
@@ -91,10 +92,10 @@ public class ServiceLocator {
     }
 
     public synchronized static State provideConversationState(User user) {
-        return new Conversation(provideChainOfCommands(), user);
+        return new Conversation(provideConversationCommands(), user);
     }
 
-    public static Command<User> provideChainOfCommands() {
+    public static Command<User> provideConversationCommands() {
         MessageDispatcher dispatcher = provideMessageDispatcher();
         Authorizator authorizator = provideAuthorizator();
         Command<User> start = new ShowOnlineUsers(dispatcher);

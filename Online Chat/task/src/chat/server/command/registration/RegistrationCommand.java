@@ -1,6 +1,6 @@
 package chat.server.command.registration;
 
-import chat.server.Communication;
+import chat.server.communication.Communication;
 import chat.server.state.Command;
 import chat.server.command.CommandInputChecks;
 import chat.server.exception.IncorrectCommandException;
@@ -18,10 +18,10 @@ public abstract class RegistrationCommand extends CommandInputChecks implements 
     @Override
     public String handle(String input, Communication additionalParameter) throws RespondException {
         String response;
-        var params = parameters(input);
+        var params = parseParameters(input);
 
         if (checkPattern(input)){
-            if (checkIncorrectParamsNumber(params)) throw new IncorrectCommandException();
+            if (!checkParamsNumber(params)) throw new IncorrectCommandException();
             response = execute(params, additionalParameter);
         } else if (next != null) {
             response = next.handle(input, additionalParameter);

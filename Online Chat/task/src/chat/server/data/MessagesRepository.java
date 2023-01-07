@@ -41,14 +41,15 @@ public class MessagesRepository {
     public List<Message> lastMessages(User from, User to) {
         var chatMessages = chatMessages(from, to).stream()
                 .collect(Collectors.groupingBy(m -> m.isReadBy(from)));
-        int readSize = chatMessages.get(true) == null ? 0 : chatMessages.get(true).size();
-        int unreadSize = chatMessages.get(false) == null ? 0 : chatMessages.get(false).size();
-        int readOffset = Math.max(readSize - 10, 0);
-        int unreadOffset = Math.max(unreadSize - 25, 0);
+        var readMessages = chatMessages.getOrDefault(true, Collections.emptyList());
+        var unreadMessages = chatMessages.getOrDefault(false, Collections.emptyList());
+        int readOffset = Math.max(readMessages.size() - 10, 0); // maximum 10 read messages
+        int unreadOffset = Math.max(unreadMessages.size() - 25, 0); // maximum 25 unread messages
+
         return Stream.concat(
-                chatMessages.getOrDefault(true, Collections.emptyList()).stream().skip(readOffset),
-                chatMessages.getOrDefault(false, Collections.emptyList()).stream().skip(unreadOffset)
-        ).limit(25).toList();
+                readMessages.stream().skip(readOffset),
+                unreadMessages.stream().skip(unreadOffset)
+        ).toList();
     }
 
     public List<Message> read() {
@@ -57,7 +58,7 @@ public class MessagesRepository {
             messages = serializer.deserialize();
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("MessagesDb file not yet created.");
-           // e.printStackTrace();
+            // e.printStackTrace();
         }
         return messages;
     }
@@ -81,7 +82,7 @@ public class MessagesRepository {
         return sb.toString();
     }
 
-    public List<User> findWhoSendNewMessages(User addressee){
+    public List<User> findWhoSendNewMessages(User addressee) {
         return messages.stream()
                 .filter(m -> m.addressee().equals(addressee) && !m.isReadBy(addressee))
                 .map(Message::author)

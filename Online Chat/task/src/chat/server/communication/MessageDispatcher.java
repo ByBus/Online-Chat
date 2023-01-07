@@ -1,4 +1,4 @@
-package chat.server;
+package chat.server.communication;
 
 import chat.server.data.MessagesRepository;
 import chat.server.data.RegistrationRepository;

@@ -1,5 +1,8 @@
 package chat.server;
 
+import chat.server.communication.Communication;
+import chat.server.communication.ServerReceiver;
+import chat.server.communication.ServerResponder;
 import chat.server.exception.ExitException;
 import chat.server.exception.RespondException;
 import chat.server.model.User;

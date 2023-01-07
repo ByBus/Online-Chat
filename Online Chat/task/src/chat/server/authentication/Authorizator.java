@@ -1,6 +1,6 @@
 package chat.server.authentication;
 
-import chat.server.MessageDispatcher;
+import chat.server.communication.MessageDispatcher;
 import chat.server.data.RegistrationRepository;
 import chat.server.exception.*;
 import chat.server.model.User;

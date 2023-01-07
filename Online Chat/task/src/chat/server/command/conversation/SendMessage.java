@@ -1,6 +1,6 @@
 package chat.server.command.conversation;
 
-import chat.server.MessageDispatcher;
+import chat.server.communication.MessageDispatcher;
 import chat.server.exception.RespondException;
 import chat.server.model.Message;
 import chat.server.model.User;
@@ -31,7 +31,7 @@ public class SendMessage extends ConversationCommand {
     }
 
     @Override
-    protected boolean checkIncorrectParamsNumber(String[] params) {
-        return false;
+    protected boolean checkParamsNumber(String[] params) {
+        return true;
     }
 }

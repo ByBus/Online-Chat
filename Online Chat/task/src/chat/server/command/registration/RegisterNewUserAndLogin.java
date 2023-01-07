@@ -1,6 +1,6 @@
 package chat.server.command.registration;
 
-import chat.server.Communication;
+import chat.server.communication.Communication;
 import chat.server.authentication.Authenticator;
 import chat.server.exception.RespondException;
 

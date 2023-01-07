@@ -1,6 +1,6 @@
 package chat.server.state;
 
-import chat.server.Communication;
+import chat.server.communication.Communication;
 import chat.server.exception.RespondException;
 
 import java.io.IOException;

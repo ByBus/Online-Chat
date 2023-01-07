@@ -1,4 +1,4 @@
-package chat.server;
+package chat.server.communication;
 
 import chat.server.model.Message;
 
@@ -14,7 +14,7 @@ public class ServerResponder {
         this.output = output;
     }
 
-    void send(String message)  {
+    public void send(String message)  {
         try {
             output.writeUTF(message);
         } catch (IOException e) {
@@ -22,7 +22,7 @@ public class ServerResponder {
         }
     }
 
-    void send(List<Message> messages) {
+    public void send(List<Message> messages) {
         if (messages.isEmpty()) return;
         var text = messages.stream()
                 .map(Message::toString)

@@ -16,10 +16,10 @@ public abstract class ConversationCommand extends CommandInputChecks implements 
     @Override
     public String handle(String input, User additionalParameter) throws RespondException {
         String response = "";
-        var params = parameters(input);
+        var params = parseParameters(input);
 
         if (checkPattern(input)){
-            if (checkIncorrectParamsNumber(params)) throw new IncorrectCommandException();
+            if (!checkParamsNumber(params)) throw new IncorrectCommandException();
             response = execute(params, additionalParameter);
         } else if (next != null) {
             response = next.handle(input, additionalParameter);

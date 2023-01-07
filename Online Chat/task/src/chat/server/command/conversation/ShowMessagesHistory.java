@@ -1,6 +1,6 @@
 package chat.server.command.conversation;
 
-import chat.server.MessageDispatcher;
+import chat.server.communication.MessageDispatcher;
 import chat.server.authentication.NumberChecker;
 import chat.server.model.User;
 

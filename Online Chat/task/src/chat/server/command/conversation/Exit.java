@@ -1,6 +1,6 @@
 package chat.server.command.conversation;
 
-import chat.server.MessageDispatcher;
+import chat.server.communication.MessageDispatcher;
 import chat.server.exception.ExitException;
 import chat.server.model.User;
 

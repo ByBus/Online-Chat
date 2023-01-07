@@ -13,11 +13,11 @@ public abstract class CommandInputChecks {
         return input.startsWith(pattern);
     }
 
-    protected boolean checkIncorrectParamsNumber(String[] params) {
-        return params.length != parametersNumber;
+    protected boolean checkParamsNumber(String[] params) {
+        return params.length == parametersNumber;
     }
 
-    protected String[] parameters(String command) {
+    protected String[] parseParameters(String command) {
         return command.trim().split("\\s+");
     }
 }
